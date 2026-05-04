@@ -151,7 +151,7 @@ if user_input:
         with st.spinner("Přemýšlím..."):
             response = client.chat.completions.create(
                 model="gpt-4o",
-                messages=[{"role": "user", "content": prompt}]
+                messages=[{"role": "user"t}]
             )
 
             reply = response.choices[0].message.content
