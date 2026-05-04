@@ -2,6 +2,27 @@ import streamlit as st
 import os
 from openai import OpenAI
 from vector_store import create_vector_store
+def select_with_custom(label, options):
+    choice = st.selectbox(label, options + ["Specifické"], key=label)
+    if choice == "Specifické":
+        return st.text_input(f"{label} - upřesnění", key=label+"_custom")
+    return choice
+form_fields = [
+    ("Lokalita", "text", None),
+    ("Typ území", "select", ["v zastavěné části", "v nezastavěné části", "chatová oblast"]),
+    ("Počet bytů", "select", ["1", "2", "3"]),
+    ("Počet NP", "select", ["1", "2", "3"]),
+    ("Podkroví", "radio", ["ano", "ne"]),
+    ("Podsklepení", "radio", ["ano", "ne"]),
+    ("Půdorys", "select", ["obdélník", "čtverec", "L tvar"]),
+    ("Konstrukce", "select", ["zděná", "dřevostavba", "kombinovaná"]),
+    ("Typ střechy", "select", ["šikmá", "plochá", "pultová", "kombinovaná"]),
+    ("Vytápění", "select", ["tepelné čerpadlo", "plyn", "elektřina", "biomasa"]),
+    ("Voda", "select", ["vodovod", "studna"]),
+    ("Kanalizace", "select", ["kanalizace", "ČOV", "septik"]),
+    ("Elektřina", "select", ["ano", "ne"]),
+    ("Plyn", "select", ["ano", "ne"])
+]
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -13,15 +34,22 @@ vectorstore = get_vectorstore()
 
 st.title("AI Asistent projektanta")
 
-# 🔹 SIDEBAR (tvůj formulář)
+data = {}
+
 with st.sidebar:
     st.header("Parametry projektu")
 
-    lokalita = st.text_input("Lokalita")
-    typ_uzemi = st.selectbox("Typ území", ["zastavěné", "nezastavěné"])
-    strecha = st.selectbox("Typ střechy", ["šikmá", "plochá"])
-    vytapeni = st.selectbox("Vytápění", ["tepelné čerpadlo", "plyn"])
+    for label, field_type, options in form_fields:
+        if field_type == "text":
+            value = st.text_input(label, key=label)
 
+        elif field_type == "select":
+            value = select_with_custom(label, options)
+
+        elif field_type == "radio":
+            value = st.radio(label, options, key=label)
+
+        data[label] = value
 # 🔹 CHAT PAMĚŤ
 if "messages" not in st.session_state:
     st.session_state.messages = []
