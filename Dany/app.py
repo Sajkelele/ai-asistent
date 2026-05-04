@@ -136,14 +136,43 @@ if user_input:
 
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
-    prompt = f"""
+  prompt = f"""
 Použij následující technické zprávy jako vzor:
 {context}
 
 Parametry projektu:
 {params_text}
 
-Vytvoř profesionální technickou zprávu včetně nadpisů a otázek.
+---
+
+Jsi AI asistent projektanta.
+
+---
+
+PRAVIDLA:
+
+1. Pokud se uživatel jen ptá (např. "ahoj", "co je ČOV", "jak funguje TČ"):
+👉 odpověz normálně jako ChatGPT, stručně a přirozeně
+
+2. Pokud uživatel výslovně chce vytvořit technickou zprávu (např.:
+"vygeneruj zprávu", "napiš technickou zprávu", "vytvoř dokument"):
+👉 vytvoř kompletní technickou zprávu podle vzorů
+
+---
+
+POKUD TVOŘÍŠ TECHNICKOU ZPRÁVU:
+
+- použij strukturu jako:
+  Celkový popis území stavby
+  Urbanistické řešení
+  Stavebně technické řešení
+- piš profesionálně jako projektant
+- nepoužívej placeholdery
+- pokud chybí údaje → napiš otázky na konec
+
+---
+
+ODPOVĚZ PODLE TOHO, CO UŽIVATEL CHCE.
 """
 
     with st.chat_message("assistant"):
