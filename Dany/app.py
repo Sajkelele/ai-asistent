@@ -69,20 +69,41 @@ if user_input:
     docs = vectorstore.similarity_search(user_input, k=3)
     context = "\n\n".join([d.page_content for d in docs])
 
-    prompt = f"""
-Použij tyto dokumenty:
+ prompt = f"""
+Použij tyto dokumenty jako vzor:
 {context}
 
 Parametry projektu:
-- Lokalita: {lokalita}
-- Typ území: {typ_uzemi}
-- Střecha: {strecha}
-- Vytápění: {vytapeni}
+""" + "\n".join([f"- {k}: {v}" for k, v in data.items()]) + """
 
-Uživatel říká:
-{user_input}
+---
 
-Odpověz jako projektant.
+Vytvoř profesionální technickou zprávu.
+
+❗ POVINNĚ:
+1. Použij strukturu a nadpisy z dodaných dokumentů (např.:
+   - Celkový popis území stavby
+   - Urbanistické a architektonické řešení
+   - Stavebně technické řešení
+   - atd.)
+
+2. Zachovej formát jako ve skutečné projektové dokumentaci
+
+3. Pokud některé údaje chybí:
+   👉 napiš otázky NA KONCI dokumentu:
+   "Doplňující otázky pro projektanta:"
+
+4. NEPOUŽÍVEJ:
+   - [doplnit]
+   - [uveďte]
+
+5. Piš jako zkušený autorizovaný projektant
+
+---
+
+Výstup:
+- kompletní dokument
+- + seznam otázek na konci
 """
 
     with st.chat_message("assistant"):
