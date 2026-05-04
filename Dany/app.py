@@ -136,7 +136,7 @@ if user_input:
 
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
-  prompt = f"""
+prompt = f"""
 Použij následující technické zprávy jako vzor:
 {context}
 
