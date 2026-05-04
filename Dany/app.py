@@ -237,6 +237,7 @@ Před vytvořením technické zprávy ověř, že máš tyto údaje(vždy se pte
 - Elektřina
 - Přístup (doprava)
 
+Nedoptávej se na věci které byly již poskytnuty. Tím že je uživatel napsal tak s nimi pracuj jako s fakty.
 ---
 
 POKUD některý z těchto údajů chybí:
