@@ -202,27 +202,52 @@ VÝSTUP:
             reply = response.choices[0].message.content
 
 # uložit do session (aby šel exportovat)
+# 🔥 uložit do session
 st.session_state.last_output = reply
 
 st.write(reply)
 
-if "last_output" in st.session_state:
+# 🔥 PROFI WORD EXPORT
+from docx.shared import Pt
 
-    doc = Document()
-    doc.add_heading("Technická zpráva", 0)
+doc = Document()
+doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
 
-    for line in st.session_state.last_output.split("\n"):
-        doc.add_paragraph(line)
+lines = reply.split("\n")
 
-    file_path = "zprava.docx"
-    doc.save(file_path)
+for line in lines:
+    line = line.strip()
 
-    with open(file_path, "rb") as f:
-        st.download_button(
-            label="📄 Stáhnout jako Word",
-            data=f,
-            file_name="technicka_zprava.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+    if not line:
+        continue
 
-    st.session_state.messages.append({"role": "assistant", "content": reply})
+    # NADPIS
+    if len(line) < 60:
+        doc.add_heading(line, level=1)
+
+    # OTÁZKY
+    elif "Doplňující otázky" in line:
+        doc.add_heading(line, level=2)
+
+    # TEXT
+    else:
+        p = doc.add_paragraph(line)
+        p.paragraph_format.space_after = Pt(10)
+
+# název souboru
+filename = "technicka_zprava.docx"
+if data.get("Lokalita"):
+    filename = f"zprava_{data['Lokalita']}.docx"
+
+doc.save(filename)
+
+with open(filename, "rb") as f:
+    st.download_button(
+        label="📄 Stáhnout jako Word (PRO)",
+        data=f,
+        file_name=filename,
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+
+# uložit do chatu
+st.session_state.messages.append({"role": "assistant", "content": reply})
