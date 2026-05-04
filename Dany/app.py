@@ -12,156 +12,93 @@ def select_with_custom(label, options):
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# 🔥 cache = rychlost
 @st.cache_resource
 def get_vectorstore():
     return create_vector_store()
 
 vectorstore = get_vectorstore()
 
-st.title("AI Generátor technické zprávy")
+st.title("AI Asistent projektanta")
 
-# 🔥 STEP STATE
-if "step" not in st.session_state:
-    st.session_state.step = 1
+# 🔹 SIDEBAR = PARAMETRY
+with st.sidebar:
+    st.header("Parametry projektu")
 
-def next_step():
-    st.session_state.step += 1
+    data = {}
 
-def prev_step():
-    st.session_state.step -= 1
+    data["Lokalita"] = st.text_input("Lokalita")
 
-
-# 🔹 STEP 1
-if st.session_state.step == 1:
-    st.header("1️⃣ Identita a pozemek")
-
-    lokalita = st.text_input("Lokalita")
-
-    typ_uzemi = select_with_custom(
+    data["Typ území"] = select_with_custom(
         "Typ území",
-        ["v zastavěné části", "v nezastavěné části", "v chatové oblasti"]
+        ["v zastavěné části", "v nezastavěné části", "chatová oblast"]
     )
 
-    if st.button("Další"):
-        st.session_state.lokalita = lokalita
-        st.session_state.typ_uzemi = typ_uzemi
-        next_step()
+    data["Počet bytů"] = select_with_custom("Počet bytů", ["1", "2", "3"])
+    data["Počet NP"] = select_with_custom("Počet NP", ["1", "2", "3"])
+    data["Podkroví"] = st.radio("Podkroví", ["ano", "ne"])
 
-
-# 🔹 STEP 2
-elif st.session_state.step == 2:
-    st.header("2️⃣ Stavba")
-
-    pocet_bytu = select_with_custom("Počet bytů", ["1", "2", "3"])
-    pocet_np = select_with_custom("Počet NP", ["1", "2", "3"])
-    podkrovi = st.radio("Podkroví", ["ano", "ne"])
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        if st.button("Zpět"):
-            prev_step()
-
-    with col2:
-        if st.button("Další"):
-            st.session_state.pocet_bytu = pocet_bytu
-            st.session_state.pocet_np = pocet_np
-            st.session_state.podkrovi = podkrovi
-            next_step()
-
-
-# 🔹 STEP 3
-elif st.session_state.step == 3:
-    st.header("3️⃣ Technické řešení")
-
-    strecha = select_with_custom(
+    data["Typ střechy"] = select_with_custom(
         "Typ střechy",
         ["šikmá", "plochá", "pultová", "kombinovaná"]
     )
 
-    vytapeni = select_with_custom(
+    data["Vytápění"] = select_with_custom(
         "Vytápění",
-        ["tepelné čerpadlo vzduch-voda", "plyn", "elektřina", "biomasa"]
+        ["tepelné čerpadlo", "plyn", "elektřina", "biomasa"]
     )
 
-    col1, col2 = st.columns(2)
+# 🔹 CHAT HISTORIE
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-    with col1:
-        if st.button("Zpět"):
-            prev_step()
+# 🔹 ZOBRAZENÍ CHATHISTORY
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.write(msg["content"])
 
-    with col2:
-        if st.button("Další"):
-            st.session_state.strecha = strecha
-            st.session_state.vytapeni = vytapeni
-            next_step()
+# 🔹 INPUT
+user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
 
+if user_input:
+    st.session_state.messages.append({"role": "user", "content": user_input})
 
-# 🔹 STEP 4
-elif st.session_state.step == 4:
-    st.header("4️⃣ Generování zprávy")
+    docs = vectorstore.similarity_search(user_input, k=3)
+    context = "\n\n".join([d.page_content for d in docs])
 
-    if st.button("Vygenerovat zprávu"):
+    params_text = "\n".join([f"- {k}: {v}" for k, v in data.items()])
 
-        data = {
-            "Lokalita": st.session_state.lokalita,
-            "Typ území": st.session_state.typ_uzemi,
-            "Počet bytů": st.session_state.pocet_bytu,
-            "Počet NP": st.session_state.pocet_np,
-            "Podkroví": st.session_state.podkrovi,
-            "Typ střechy": st.session_state.strecha,
-            "Vytápění": st.session_state.vytapeni
-        }
-
-        docs = vectorstore.similarity_search("technická zpráva", k=3)
-        context = "\n\n".join([d.page_content for d in docs])
-
-        prompt = f"""
+    prompt = f"""
 Použij tyto dokumenty jako vzor:
 {context}
 
 Parametry projektu:
-""" + "\n".join([f"- {k}: {v}" for k, v in data.items()]) + """
+{params_text}
 
 ---
 
-Vytvoř profesionální technickou zprávu.
-
-❗ POVINNĚ:
-1. Použij strukturu a nadpisy z dodaných dokumentů (např.:
-   - Celkový popis území stavby
-   - Urbanistické a architektonické řešení
-   - Stavebně technické řešení
-   - atd.)
-
-2. Zachovej formát jako ve skutečné projektové dokumentaci
-
-3. Pokud některé údaje chybí:
-👉 napiš otázky NA KONCI dokumentu:
-"Doplňující otázky pro projektanta:"
-
-4. NEPOUŽÍVEJ:
-- [doplnit]
-- [uveďte]
-
-5. Piš jako zkušený autorizovaný projektant
+Uživatel říká:
+{user_input}
 
 ---
 
-Výstup:
-- kompletní dokument
-- + seznam otázek na konci
+Pokud uživatel chce vytvořit technickou zprávu:
+- použij strukturu (např. Celkový popis území stavby, atd.)
+- vytvoř kompletní dokument
+
+Pokud chybí údaje:
+- zeptej se na ně
+
+Piš jako zkušený projektant.
 """
 
-        with st.spinner("Generuji zprávu..."):
+    with st.chat_message("assistant"):
+        with st.spinner("Přemýšlím..."):
             response = client.chat.completions.create(
                 model="gpt-4.1-mini",
                 messages=[{"role": "user", "content": prompt}]
             )
 
-        st.subheader("Výstup")
-        st.write(response.choices[0].message.content)
+            reply = response.choices[0].message.content
+            st.write(reply)
 
-    if st.button("Zpět"):
-        prev_step()
+    st.session_state.messages.append({"role": "assistant", "content": reply})
