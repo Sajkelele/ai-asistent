@@ -192,18 +192,61 @@ VÝSTUP:
 - + otázky na konci
 """
 
-    with st.chat_message("assistant"):
-        with st.spinner("Přemýšlím..."):
-            response = client.chat.completions.create(
-                model="gpt-4.1-mini",
-                messages=[{"role": "user", "content": prompt}]
+with st.chat_message("assistant"):
+    with st.spinner("Přemýšlím..."):
+        response = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        reply = response.choices[0].message.content
+
+        # 🔥 uložit
+        st.session_state.last_output = reply
+
+        # 🔥 zobrazit
+        st.write(reply)
+
+        # 🔥 WORD EXPORT
+        from docx.shared import Pt
+
+        doc = Document()
+        doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
+
+        lines = reply.split("\n")
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            if len(line) < 60:
+                doc.add_heading(line, level=1)
+            elif "Doplňující otázky" in line:
+                doc.add_heading(line, level=2)
+            else:
+                p = doc.add_paragraph(line)
+                p.paragraph_format.space_after = Pt(10)
+
+        filename = "technicka_zprava.docx"
+        if data.get("Lokalita"):
+            filename = f"zprava_{data['Lokalita']}.docx"
+
+        doc.save(filename)
+
+        with open(filename, "rb") as f:
+            st.download_button(
+                label="📄 Stáhnout jako Word (PRO)",
+                data=f,
+                file_name=filename,
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             )
 
-            reply = response.choices[0].message.content
-            # 🔥 uložit do session
-st.session_state.last_output = reply
-
-st.write(reply)
+        # 🔥 uložit do chatu
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": reply
+        })
 
 # 🔥 PROFI WORD EXPORT
 from docx.shared import Pt
