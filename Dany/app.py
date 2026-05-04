@@ -109,6 +109,23 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
 
 if user_input:
+    errors = []
+
+if not data.get("Lokalita"):
+    errors.append("Vyplň lokalitu")
+
+if not data.get("Typ území"):
+    errors.append("Vyber typ území")
+
+if not data.get("Počet NP"):
+    errors.append("Vyber počet podlaží")
+
+# 🔥 pokud jsou chyby
+if errors:
+    for e in errors:
+        st.error(e)
+    st.stop()
+    
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     docs = vectorstore.similarity_search(user_input, k=3)
