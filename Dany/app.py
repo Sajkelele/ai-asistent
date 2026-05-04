@@ -164,7 +164,7 @@ Pokud uživatel chce technickou zprávu:
 - používej nadpisy a odstavce
 - žádné emoji
 - žádné odrážky typu chat
-- styl jako projektová dokumentace
+- styl jako projektová dokumentace, jejiž vzory jsou v documents složce
 
 ---
 
