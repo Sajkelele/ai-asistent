@@ -135,11 +135,12 @@ if user_input:
 
     # 🔥 RAG (PDF)
 # 🔥 jen pro dokument
-if wants_doc:
-    docs = vectorstore.similarity_search("technická zpráva stavba projekt", k=5)
-    context = "\n\n".join([d.page_content for d in docs])
-else:
-    context = ""
+# 🔥 RAG jen pro dokument
+    if wants_doc:
+        docs = vectorstore.similarity_search("technická zpráva stavba projekt", k=5)
+        context = "\n\n".join([d.page_content for d in docs])
+    else:
+        context = ""
 
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
