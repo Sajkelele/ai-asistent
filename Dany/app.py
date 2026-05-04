@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from openai import OpenAI
 from vector_store import create_vector_store
+from docx import Document
 
 # 🔥 select s "Specifické"
 def select_with_custom(label, options):
@@ -199,6 +200,29 @@ VÝSTUP:
             )
 
             reply = response.choices[0].message.content
-            st.write(reply)
+
+# uložit do session (aby šel exportovat)
+st.session_state.last_output = reply
+
+st.write(reply)
+
+if "last_output" in st.session_state:
+
+    doc = Document()
+    doc.add_heading("Technická zpráva", 0)
+
+    for line in st.session_state.last_output.split("\n"):
+        doc.add_paragraph(line)
+
+    file_path = "zprava.docx"
+    doc.save(file_path)
+
+    with open(file_path, "rb") as f:
+        st.download_button(
+            label="📄 Stáhnout jako Word",
+            data=f,
+            file_name="technicka_zprava.docx",
+            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
