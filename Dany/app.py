@@ -107,22 +107,27 @@ user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
 # 🔥 HLAVNÍ LOGIKA
 if user_input:
 
-    # VALIDACE
-    errors = []
+    # 🔥 jen pokud chce dokument
+    wants_doc = any(word in user_input.lower() for word in [
+        "zprávu", "zprava", "dokument", "vytvoř", "vygeneruj"
+    ])
 
-    if not data.get("Lokalita"):
-        errors.append("Vyplň lokalitu")
+    if wants_doc:
+        errors = []
 
-    if not data.get("Typ území"):
-        errors.append("Vyber typ území")
+        if not data.get("Lokalita"):
+            errors.append("Vyplň lokalitu")
 
-    if not data.get("Počet NP"):
-        errors.append("Vyber počet podlaží")
+        if not data.get("Typ území"):
+            errors.append("Vyber typ území")
 
-    if errors:
-        for e in errors:
-            st.error(e)
-        st.stop()
+        if not data.get("Počet NP"):
+            errors.append("Vyber počet podlaží")
+
+        if errors:
+            for e in errors:
+                st.error(e)
+            st.stop()
 
     st.session_state.messages.append({"role": "user", "content": user_input})
 
