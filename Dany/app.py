@@ -200,9 +200,7 @@ VÝSTUP:
             )
 
             reply = response.choices[0].message.content
-
-# uložit do session (aby šel exportovat)
-# 🔥 uložit do session
+            # 🔥 uložit do session
 st.session_state.last_output = reply
 
 st.write(reply)
