@@ -3,6 +3,7 @@ import os
 from openai import OpenAI
 from vector_store import create_vector_store
 from docx import Document
+from docx.shared import Pt
 
 # 🔥 select s "Specifické"
 def select_with_custom(label, options):
@@ -29,7 +30,7 @@ vectorstore = get_vectorstore()
 
 st.title("AI Asistent projektanta")
 
-# 🔹 SIDEBAR = PARAMETRY
+# 🔹 SIDEBAR
 with st.sidebar:
     st.header("Parametry projektu")
 
@@ -39,7 +40,6 @@ with st.sidebar:
 
     data = {}
 
-    # 🟢 I. IDENTITA
     with st.expander("I. Identita a pozemek", expanded=True):
         data["Druh stavby"] = select_with_custom("Druh stavby", [
             "Rodinný dům", "Dvojdům", "Řadový dům", "Rekreační objekt"
@@ -52,7 +52,6 @@ with st.sidebar:
             "stávající sjezd", "nový sjezd", "jiný pozemek"
         ])
 
-    # 🟢 II. HMOTA
     with st.expander("II. Tvar a hmota"):
         data["Půdorys"] = select_with_custom("Půdorys", [
             "obdélník", "čtverec", "L", "U"
@@ -67,7 +66,6 @@ with st.sidebar:
             "není", "součást domu", "samostatná"
         ])
 
-    # 🟢 III. KONSTRUKCE
     with st.expander("III. Konstrukce a zdroje"):
         data["Konstrukce"] = select_with_custom("Konstrukce", [
             "zděná", "dřevostavba", "beton", "ocel"
@@ -79,7 +77,6 @@ with st.sidebar:
             "krb", "FVE", "není"
         ])
 
-    # 🟢 IV. SÍTĚ
     with st.expander("IV. Inženýrské sítě"):
         data["Voda"] = select_with_custom("Voda", [
             "vodovod", "studna"
@@ -97,21 +94,20 @@ with st.sidebar:
             "ano", "ne"
         ])
 
-# 🔹 CHAT HISTORIE
+# 🔹 CHAT
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 🔹 ZOBRAZENÍ CHATHISTORY
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
-# 🔹 INPUT
 user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
 
+# 🔥 HLAVNÍ LOGIKA
 if user_input:
 
-    # 🔥 MUSÍ TAM BÝT TENHLE ŘÁDEK
+    # VALIDACE
     errors = []
 
     if not data.get("Lokalita"):
@@ -127,13 +123,13 @@ if user_input:
         for e in errors:
             st.error(e)
         st.stop()
-    
+
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     docs = vectorstore.similarity_search(user_input, k=3)
     context = "\n\n".join([d.page_content for d in docs])
 
-    params_text = "\n".join([f"- {k}: {v}" for k, v in data.items()])
+    params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
     prompt = f"""
 Použij následující technické zprávy jako vzor:
@@ -142,153 +138,50 @@ Použij následující technické zprávy jako vzor:
 Parametry projektu:
 {params_text}
 
----
-
-Úkol:
-Jsi zkušený autorizovaný projektant.
-
-Na základě dodaných podkladů vytvoř profesionální technickou zprávu.
-
----
-
-POVINNÁ STRUKTURA:
-Použij reálné nadpisy jako v projektové dokumentaci, například:
-
-1. Celkový popis území stavby  
-2. Urbanistické a architektonické řešení  
-3. Stavebně technické řešení  
-4. Dopravní řešení  
-5. Technická infrastruktura  
-6. Vliv stavby na okolí  
-7. Organizace výstavby  
-
----
-
-PRAVIDLA:
-- Piš souvislý odborný text (ne body)
-- NEPOUŽÍVEJ placeholdery typu [doplnit], [xxx]
-- Pokud údaj chybí → odhadni realisticky podle kontextu
-- Pokud nelze odhadnout → nech místo prázdné, ale nepiš závorky
-
----
-
-DOPLŇUJÍCÍ OTÁZKY:
-Na konec dokumentu přidej sekci:
-
-"Doplňující otázky pro projektanta:"
-
-a napiš konkrétní otázky na chybějící údaje (např. rozměry, materiály, napojení atd.)
-
----
-
-ROZHODOVÁNÍ:
-- Pokud uživatel chce dokument → vytvoř celý dokument
-- Pokud se jen ptá → odpověz normálně
-
----
-
-VÝSTUP:
-- kompletní technická zpráva
-- + otázky na konci
+Vytvoř profesionální technickou zprávu včetně nadpisů a otázek.
 """
 
-with st.chat_message("assistant"):
-    with st.spinner("Přemýšlím..."):
-        response = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        reply = response.choices[0].message.content
-
-        # 🔥 uložit
-        st.session_state.last_output = reply
-
-        # 🔥 zobrazit
-        st.write(reply)
-
-        # 🔥 WORD EXPORT
-        from docx.shared import Pt
-
-        doc = Document()
-        doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
-
-        lines = reply.split("\n")
-
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-
-            if len(line) < 60:
-                doc.add_heading(line, level=1)
-            elif "Doplňující otázky" in line:
-                doc.add_heading(line, level=2)
-            else:
-                p = doc.add_paragraph(line)
-                p.paragraph_format.space_after = Pt(10)
-
-        filename = "technicka_zprava.docx"
-        if data.get("Lokalita"):
-            filename = f"zprava_{data['Lokalita']}.docx"
-
-        doc.save(filename)
-
-        with open(filename, "rb") as f:
-            st.download_button(
-                label="📄 Stáhnout jako Word (PRO)",
-                data=f,
-                file_name=filename,
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    with st.chat_message("assistant"):
+        with st.spinner("Přemýšlím..."):
+            response = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[{"role": "user", "content": prompt}]
             )
 
-        # 🔥 uložit do chatu
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": reply
-        })
+            reply = response.choices[0].message.content
 
-# 🔥 PROFI WORD EXPORT
-from docx.shared import Pt
+            st.session_state.last_output = reply
+            st.write(reply)
 
-doc = Document()
-doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
+            # 🔥 WORD EXPORT
+            doc = Document()
+            doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
 
-lines = reply.split("\n")
+            for line in reply.split("\n"):
+                line = line.strip()
+                if not line:
+                    continue
 
-for line in lines:
-    line = line.strip()
+                if len(line) < 60:
+                    doc.add_heading(line, level=1)
+                else:
+                    p = doc.add_paragraph(line)
+                    p.paragraph_format.space_after = Pt(10)
 
-    if not line:
-        continue
+            filename = "technicka_zprava.docx"
+            if data.get("Lokalita"):
+                filename = f"zprava_{data['Lokalita']}.docx"
 
-    # NADPIS
-    if len(line) < 60:
-        doc.add_heading(line, level=1)
+            doc.save(filename)
 
-    # OTÁZKY
-    elif "Doplňující otázky" in line:
-        doc.add_heading(line, level=2)
+            with open(filename, "rb") as f:
+                st.download_button(
+                    "📄 Stáhnout jako Word",
+                    f,
+                    file_name=filename
+                )
 
-    # TEXT
-    else:
-        p = doc.add_paragraph(line)
-        p.paragraph_format.space_after = Pt(10)
-
-# název souboru
-filename = "technicka_zprava.docx"
-if data.get("Lokalita"):
-    filename = f"zprava_{data['Lokalita']}.docx"
-
-doc.save(filename)
-
-with open(filename, "rb") as f:
-    st.download_button(
-        label="📄 Stáhnout jako Word (PRO)",
-        data=f,
-        file_name=filename,
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
-
-# uložit do chatu
-st.session_state.messages.append({"role": "assistant", "content": reply})
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": reply
+            })
