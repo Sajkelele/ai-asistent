@@ -238,6 +238,7 @@ Před vytvořením technické zprávy ověř, že máš tyto údaje(vždy se pte
 - Přístup (doprava)
 
 Nedoptávej se na věci které byly již poskytnuty. Tím že je uživatel napsal tak s nimi pracuj jako s fakty.
+Ber odpovědi uživatele tak že když se ptáš na dvě otázky tak on ti odpovídá na dvě otázky například.
 ---
 
 POKUD některý z těchto údajů chybí:
