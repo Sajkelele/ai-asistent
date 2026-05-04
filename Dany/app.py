@@ -219,7 +219,31 @@ Pokud jde o běžný dotaz:
 - klidně použij emoji pro lepší čitelnost
 - vysvětluj jednoduše a prakticky
 - jdi rovnou k věci
+KONTROLNÍ SEZNAM (MUSÍŠ ZKONTROLOVAT):
 
+Před vytvořením technické zprávy ověř, že máš tyto údaje:
+
+- Lokalita
+- Parcelní číslo
+- Typ území
+- Počet podlaží
+- Půdorys / tvar stavby
+- Konstrukční systém
+- Typ střechy
+- Vytápění
+- Napojení na vodu
+- Kanalizace
+- Elektřina
+- Přístup (doprava)
+
+---
+
+POKUD některý z těchto údajů chybí:
+- NEVYTVÁŘEJ dokument
+- Zeptej se konkrétně na chybějící položky
+
+Např.:
+"Jaké je parcelní číslo pozemku?"
 ---
 """
 
