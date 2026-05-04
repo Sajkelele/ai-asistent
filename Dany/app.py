@@ -173,6 +173,7 @@ Pokud uživatel chce technickou zprávu:
 - zkrátit odpověď na podstatné/klíčové informace
 - když se doptáváš piš kurzívou
 - piš v přítomném čase
+- pokud je v žádaném bodu informace (stavební parcela, názvy obcí, jména atd) tak se na ně doptej aby byla zpráva úplná
 ---
 
 Pokud jde o běžný dotaz:
