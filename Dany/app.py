@@ -168,6 +168,8 @@ Pokud uživatel chce technickou zprávu:
 - v sidebaru nejsou všechny informace, použíj internet a doptej se na věci které potřebuješ k vypsání následujícího bodu
 - nemusíš používat veškeré informace ze sidebaru ke každému dotazu pokud nejsou relevantní (podle podkladů v documents)
 - nepiš nadpisy odpovídej v souvislém textu na žádané téma
+- nevysvětlovat technické parametry 
+- zkrátit odpověď na podstatné informace
 ---
 
 Pokud jde o běžný dotaz:
