@@ -11,7 +11,11 @@ def select_with_custom(label, options):
     return choice
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-vectorstore = create_vector_store()
+@st.cache_resource
+def get_vectorstore():
+    return create_vector_store()
+
+vectorstore = get_vectorstore()
 
 st.title("AI Generátor technické zprávy")
 
@@ -96,22 +100,22 @@ elif st.session_state.step == 3:
 elif st.session_state.step == 4:
     st.header("4️⃣ Generování zprávy")
 
-    if st.button("Vygenerovat zprávu"):
+if st.button("Vygenerovat zprávu"):
 
-        data = {
-            "lokalita": st.session_state.lokalita,
-            "typ_uzemi": st.session_state.typ_uzemi,
-            "pocet_bytu": st.session_state.pocet_bytu,
-            "pocet_np": st.session_state.pocet_np,
-            "podkrovi": st.session_state.podkrovi,
-            "strecha": st.session_state.strecha,
-            "vytapeni": st.session_state.vytapeni
-        }
+    data = {
+        "lokalita": st.session_state.lokalita,
+        "typ_uzemi": st.session_state.typ_uzemi,
+        "pocet_bytu": st.session_state.pocet_bytu,
+        "pocet_np": st.session_state.pocet_np,
+        "podkrovi": st.session_state.podkrovi,
+        "strecha": st.session_state.strecha,
+        "vytapeni": st.session_state.vytapeni
+    }
 
-        docs = vectorstore.similarity_search("technická zpráva", k=3)
-        context = "\n\n".join([d.page_content for d in docs])
+    docs = vectorstore.similarity_search("technická zpráva", k=3)
+    context = "\n\n".join([d.page_content for d in docs])
 
-        prompt = f"""
+    prompt = f"""
 Použij tyto dokumenty jako vzor:
 {context}
 
@@ -124,13 +128,15 @@ Použij tyto údaje:
 ❗ Piš jako zkušený projektant.
 """
 
+    # 🔥 TADY JE SPINNER
+    with st.spinner("Generuji zprávu..."):
         response = client.chat.completions.create(
             model="gpt-4.1-mini",
             messages=[{"role": "user", "content": prompt}]
         )
 
-        st.subheader("Výstup")
-        st.write(response.choices[0].message.content)
+    st.subheader("Výstup")
+    st.write(response.choices[0].message.content)
 
     if st.button("Zpět"):
         prev_step()
