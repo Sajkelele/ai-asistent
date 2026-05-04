@@ -1,109 +1,3 @@
-import streamlit as st
-import os
-from openai import OpenAI
-from vector_store import create_vector_store
-from docx import Document
-from docx.shared import Pt
-
-# 🔥 select s "Specifické"
-def select_with_custom(label, options):
-    choice = st.selectbox(
-        label,
-        options + ["Specifické"],
-        index=None,
-        placeholder="Vyber...",
-        key=label
-    )
-
-    if choice == "Specifické":
-        return st.text_input(f"{label} - upřesnění", key=label+"_custom")
-
-    return choice
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-@st.cache_resource
-def get_vectorstore():
-    return create_vector_store()
-
-vectorstore = get_vectorstore()
-
-st.title("AI Asistent projektanta")
-
-# 🔹 SIDEBAR
-with st.sidebar:
-    st.header("Parametry projektu")
-
-    if st.button("🔄 Reset"):
-        st.session_state.clear()
-        st.rerun()
-
-    data = {}
-
-    with st.expander("I. Identita a pozemek", expanded=True):
-        data["Druh stavby"] = select_with_custom("Druh stavby", [
-            "Rodinný dům", "Dvojdům", "Řadový dům", "Rekreační objekt"
-        ])
-        data["Lokalita"] = st.text_input("Lokalita", placeholder="např. Brno")
-        data["Typ území"] = select_with_custom("Typ území", [
-            "v zastavěné části", "v nezastavěné části", "chatová oblast"
-        ])
-        data["Doprava"] = select_with_custom("Napojení na dopravu", [
-            "stávající sjezd", "nový sjezd", "jiný pozemek"
-        ])
-
-    with st.expander("II. Tvar a hmota"):
-        data["Půdorys"] = select_with_custom("Půdorys", [
-            "obdélník", "čtverec", "L", "U"
-        ])
-        data["Počet NP"] = select_with_custom("Počet NP", ["1", "2", "3"])
-        data["Podkroví"] = st.radio("Podkroví", ["ano", "ne"])
-        data["Podsklepení"] = st.radio("Podsklepení", ["ne", "ano", "částečně"])
-        data["Terén"] = select_with_custom("Terén", [
-            "rovina", "mírný sklon", "prudký svah"
-        ])
-        data["Garáž"] = select_with_custom("Garáž", [
-            "není", "součást domu", "samostatná"
-        ])
-
-    with st.expander("III. Konstrukce a zdroje"):
-        data["Konstrukce"] = select_with_custom("Konstrukce", [
-            "zděná", "dřevostavba", "beton", "ocel"
-        ])
-        data["Vytápění"] = select_with_custom("Vytápění", [
-            "TČ vzduch-voda", "plyn", "elektřina"
-        ])
-        data["Sekundární zdroj"] = select_with_custom("Sekundární zdroj", [
-            "krb", "FVE", "není"
-        ])
-
-    with st.expander("IV. Inženýrské sítě"):
-        data["Voda"] = select_with_custom("Voda", [
-            "vodovod", "studna"
-        ])
-        data["Kanalizace"] = select_with_custom("Kanalizace", [
-            "kanalizace", "ČOV", "jímka"
-        ])
-        data["Dešťová voda"] = select_with_custom("Dešťová voda", [
-            "vsakování", "retenční nádrž", "kanalizace"
-        ])
-        data["Elektřina"] = select_with_custom("Elektřina", [
-            "nová přípojka", "stávající"
-        ])
-        data["Plyn"] = select_with_custom("Plyn", [
-            "ano", "ne"
-        ])
-
-# 🔹 CHAT
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.write(msg["content"])
-
-user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
-
 # 🔥 HLAVNÍ LOGIKA
 if user_input:
 
@@ -136,7 +30,8 @@ if user_input:
 
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
-prompt = f"""
+    # 🔥 PROMPT MUSÍ BÝT UVNITŘ if user_input
+    prompt = f"""
 Použij následující technické zprávy jako vzor:
 {context}
 
