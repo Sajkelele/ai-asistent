@@ -68,7 +68,7 @@ if user_input:
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items()])
 
     prompt = f"""
-Použij tyto dokumenty jako vzor:
+Použij následující technické zprávy jako vzor:
 {context}
 
 Parametry projektu:
@@ -76,19 +76,52 @@ Parametry projektu:
 
 ---
 
-Uživatel říká:
-{user_input}
+Úkol:
+Jsi zkušený autorizovaný projektant.
+
+Na základě dodaných podkladů vytvoř profesionální technickou zprávu.
 
 ---
 
-Pokud uživatel chce vytvořit technickou zprávu:
-- použij strukturu (např. Celkový popis území stavby, atd.)
-- vytvoř kompletní dokument
+POVINNÁ STRUKTURA:
+Použij reálné nadpisy jako v projektové dokumentaci, například:
 
-Pokud chybí údaje:
-- zeptej se na ně
+1. Celkový popis území stavby  
+2. Urbanistické a architektonické řešení  
+3. Stavebně technické řešení  
+4. Dopravní řešení  
+5. Technická infrastruktura  
+6. Vliv stavby na okolí  
+7. Organizace výstavby  
 
-Piš jako zkušený projektant.
+---
+
+PRAVIDLA:
+- Piš souvislý odborný text (ne body)
+- NEPOUŽÍVEJ placeholdery typu [doplnit], [xxx]
+- Pokud údaj chybí → odhadni realisticky podle kontextu
+- Pokud nelze odhadnout → nech místo prázdné, ale nepiš závorky
+
+---
+
+DOPLŇUJÍCÍ OTÁZKY:
+Na konec dokumentu přidej sekci:
+
+"Doplňující otázky pro projektanta:"
+
+a napiš konkrétní otázky na chybějící údaje (např. rozměry, materiály, napojení atd.)
+
+---
+
+ROZHODOVÁNÍ:
+- Pokud uživatel chce dokument → vytvoř celý dokument
+- Pokud se jen ptá → odpověz normálně
+
+---
+
+VÝSTUP:
+- kompletní technická zpráva
+- + otázky na konci
 """
 
     with st.chat_message("assistant"):
