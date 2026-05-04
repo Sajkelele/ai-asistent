@@ -5,9 +5,17 @@ from vector_store import create_vector_store
 
 # 🔥 select s "Specifické"
 def select_with_custom(label, options):
-    choice = st.selectbox(label, options + ["Specifické"], key=label)
+    choice = st.selectbox(
+        label,
+        options + ["Specifické"],
+        index=None,
+        placeholder="Vyber...",
+        key=label
+    )
+
     if choice == "Specifické":
         return st.text_input(f"{label} - upřesnění", key=label+"_custom")
+
     return choice
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
