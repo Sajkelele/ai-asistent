@@ -160,12 +160,22 @@ Parametry:
 ---
 
 Pokud uživatel chce technickou zprávu:
-- vytvoř ji podle kontextu a parametrů
+- vytvoř ji jako profesionální dokument
+- používej nadpisy a odstavce
+- žádné emoji
+- žádné odrážky typu chat
+- styl jako projektová dokumentace
 
-Jinak:
-- odpověz normálně a konkrétně
+---
+
+Pokud jde o běžný dotaz:
+- odpověz přehledně
+- používej odstavce nebo odrážky
+- klidně použij emoji pro lepší čitelnost
+- vysvětluj jednoduše a prakticky
 - jdi rovnou k věci
-- nepoužívej zbytečné fráze
+
+---
 """
 
     with st.chat_message("assistant"):
