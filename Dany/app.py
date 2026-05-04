@@ -146,32 +146,26 @@ if user_input:
 
     # 🔥 PROMPT
     prompt = f"""
-Použij následující technické zprávy jako vzor:
+Uživatel:
+{user_input}
+
+---
+
+Kontext (pokud existuje):
 {context}
 
-Parametry projektu:
+Parametry:
 {params_text}
 
 ---
 
-Jsi AI asistent projektanta.
+Pokud uživatel chce technickou zprávu:
+- vytvoř ji podle kontextu a parametrů
 
----
-
-PRAVIDLA:
-
-1. Pokud se uživatel ptá na cokoliv (i mimo stavebnictví):
-👉 odpověz normálně jako ChatGPT, konkrétně a užitečně
-
-2. Pokud chce technickou zprávu:
-👉 vytvoř profesionální dokument podle vzorů
-
-3. Pokud dotaz NESOUVISÍ se stavbou:
-👉 odpověz jako běžný AI asistent (např. technika, iPhone, cokoliv)
-
----
-
-ODPOVÍDEJ VŽDY KONKRÉTNĚ A UŽITEČNĚ.
+Jinak:
+- odpověz normálně a konkrétně
+- jdi rovnou k věci
+- nepoužívej zbytečné fráze
 """
 
     with st.chat_message("assistant"):
