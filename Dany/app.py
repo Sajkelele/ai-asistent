@@ -134,8 +134,12 @@ if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     # 🔥 RAG (PDF)
-    docs = vectorstore.similarity_search(user_input, k=3)
+# 🔥 jen pro dokument
+if wants_doc:
+    docs = vectorstore.similarity_search("technická zpráva stavba projekt", k=5)
     context = "\n\n".join([d.page_content for d in docs])
+else:
+    context = ""
 
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
