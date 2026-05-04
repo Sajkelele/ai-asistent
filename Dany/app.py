@@ -1,8 +1,24 @@
-# 🔥 krok formuláře
+import streamlit as st
+import os
+from openai import OpenAI
+from vector_store import create_vector_store
+
+# 🔥 select s "Specifické"
+def select_with_custom(label, options):
+    choice = st.selectbox(label, options + ["Specifické"])
+    if choice == "Specifické":
+        return st.text_input(f"{label} - upřesnění")
+    return choice
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+vectorstore = create_vector_store()
+
+st.title("AI Generátor technické zprávy")
+
+# 🔥 STEP STATE
 if "step" not in st.session_state:
     st.session_state.step = 1
 
-# 🔥 navigace
 def next_step():
     st.session_state.step += 1
 
@@ -10,7 +26,7 @@ def prev_step():
     st.session_state.step -= 1
 
 
-# 🔹 STEP 1 — IDENTITA
+# 🔹 STEP 1
 if st.session_state.step == 1:
     st.header("1️⃣ Identita a pozemek")
 
@@ -27,7 +43,7 @@ if st.session_state.step == 1:
         next_step()
 
 
-# 🔹 STEP 2 — STAVBA
+# 🔹 STEP 2
 elif st.session_state.step == 2:
     st.header("2️⃣ Stavba")
 
@@ -49,7 +65,7 @@ elif st.session_state.step == 2:
             next_step()
 
 
-# 🔹 STEP 3 — TECHNICKÉ
+# 🔹 STEP 3
 elif st.session_state.step == 3:
     st.header("3️⃣ Technické řešení")
 
@@ -76,7 +92,7 @@ elif st.session_state.step == 3:
             next_step()
 
 
-# 🔹 STEP 4 — VÝSTUP
+# 🔹 STEP 4
 elif st.session_state.step == 4:
     st.header("4️⃣ Generování zprávy")
 
