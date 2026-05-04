@@ -32,120 +32,69 @@ st.title("AI Asistent projektanta")
 with st.sidebar:
     st.header("Parametry projektu")
 
-    # 🔥 RESET BUTTON
-    if st.button("🔄 Resetovat formulář"):
+    if st.button("🔄 Reset"):
         st.session_state.clear()
         st.rerun()
 
     data = {}
 
-    # IDENTITA
-    data["Druh stavby"] = select_with_custom(
-        "Druh stavby",
-        ["Rodinný dům", "Rodinný dvojdům", "Řadový dům", "Rekreační objekt"]
-    )
+    # 🟢 I. IDENTITA
+    with st.expander("I. Identita a pozemek", expanded=True):
+        data["Druh stavby"] = select_with_custom("Druh stavby", [
+            "Rodinný dům", "Dvojdům", "Řadový dům", "Rekreační objekt"
+        ])
+        data["Lokalita"] = st.text_input("Lokalita", placeholder="např. Brno")
+        data["Typ území"] = select_with_custom("Typ území", [
+            "v zastavěné části", "v nezastavěné části", "chatová oblast"
+        ])
+        data["Doprava"] = select_with_custom("Napojení na dopravu", [
+            "stávající sjezd", "nový sjezd", "jiný pozemek"
+        ])
 
-    data["Lokalita"] = st.text_input("Lokalita", placeholder="např. Brno")
+    # 🟢 II. HMOTA
+    with st.expander("II. Tvar a hmota"):
+        data["Půdorys"] = select_with_custom("Půdorys", [
+            "obdélník", "čtverec", "L", "U"
+        ])
+        data["Počet NP"] = select_with_custom("Počet NP", ["1", "2", "3"])
+        data["Podkroví"] = st.radio("Podkroví", ["ano", "ne"])
+        data["Podsklepení"] = st.radio("Podsklepení", ["ne", "ano", "částečně"])
+        data["Terén"] = select_with_custom("Terén", [
+            "rovina", "mírný sklon", "prudký svah"
+        ])
+        data["Garáž"] = select_with_custom("Garáž", [
+            "není", "součást domu", "samostatná"
+        ])
 
-    # ÚZEMÍ
-    data["Typ území"] = st.selectbox(
-        "Typ území",
-        ["v zastavěné části", "v nezastavěné části", "v chatové oblasti"],
-        index=None,
-        placeholder="Vyber..."
-    )
+    # 🟢 III. KONSTRUKCE
+    with st.expander("III. Konstrukce a zdroje"):
+        data["Konstrukce"] = select_with_custom("Konstrukce", [
+            "zděná", "dřevostavba", "beton", "ocel"
+        ])
+        data["Vytápění"] = select_with_custom("Vytápění", [
+            "TČ vzduch-voda", "plyn", "elektřina"
+        ])
+        data["Sekundární zdroj"] = select_with_custom("Sekundární zdroj", [
+            "krb", "FVE", "není"
+        ])
 
-    data["Napojení na dopravu"] = select_with_custom(
-        "Napojení na dopravu",
-        ["stávající sjezd", "nový sjezd", "přes jiný pozemek"]
-    )
-
-    # HMOTA
-    data["Půdorys"] = select_with_custom(
-        "Půdorys",
-        ["obdélník", "čtverec", "tvar L", "tvar U", "členitý"]
-    )
-
-    data["Počet bytů"] = st.selectbox(
-        "Počet bytů",
-        ["1", "2", "3"],
-        index=None,
-        placeholder="Vyber..."
-    )
-
-    data["Počet NP"] = st.selectbox(
-        "Počet NP",
-        ["1", "2", "3"],
-        index=None,
-        placeholder="Vyber..."
-    )
-
-    data["Podkroví"] = st.radio(
-        "Podkroví",
-        ["ano", "ne"],
-        index=None
-    )
-
-    data["Podsklepení"] = st.radio(
-        "Podsklepení",
-        ["ne", "ano", "částečně"],
-        index=None
-    )
-
-    # TERÉN
-    data["Terén"] = select_with_custom(
-        "Terén na pozemku",
-        ["rovina", "mírný sklon", "prudký svah"]
-    )
-
-    # GARÁŽ
-    data["Garáž"] = select_with_custom(
-        "Garáž",
-        ["není", "součást domu", "samostatná"]
-    )
-
-    # KONSTRUKCE
-    data["Konstrukce"] = select_with_custom(
-        "Konstrukční systém",
-        ["zděný", "dřevostavba", "beton", "ocel"]
-    )
-
-    # ENERGIE
-    data["Primární vytápění"] = select_with_custom(
-        "Primární zdroj vytápění",
-        ["TČ vzduch-voda", "TČ země-voda", "plyn", "elektřina", "biomasa"]
-    )
-
-    data["Sekundární zdroj"] = select_with_custom(
-        "Sekundární zdroj",
-        ["krb", "FVE", "není"]
-    )
-
-    # SÍTĚ
-    data["Voda"] = select_with_custom(
-        "Pitná voda",
-        ["vodovod", "studna", "není řešeno"]
-    )
-
-    data["Kanalizace"] = select_with_custom(
-        "Kanalizace",
-        ["kanalizace", "ČOV", "jímka"]
-    )
-
-    data["Dešťová voda"] = select_with_custom(
-        "Dešťová voda",
-        ["vsakování", "retenční nádrž", "kanalizace"]
-    )
-
-    data["Elektřina"] = select_with_custom(
-        "Elektřina",
-        ["nová přípojka", "stávající"]
-    )
-
-    data["Plyn"] = select_with_custom(
-        "Plyn",
-        ["ano", "ne"]
-    )
+    # 🟢 IV. SÍTĚ
+    with st.expander("IV. Inženýrské sítě"):
+        data["Voda"] = select_with_custom("Voda", [
+            "vodovod", "studna"
+        ])
+        data["Kanalizace"] = select_with_custom("Kanalizace", [
+            "kanalizace", "ČOV", "jímka"
+        ])
+        data["Dešťová voda"] = select_with_custom("Dešťová voda", [
+            "vsakování", "retenční nádrž", "kanalizace"
+        ])
+        data["Elektřina"] = select_with_custom("Elektřina", [
+            "nová přípojka", "stávající"
+        ])
+        data["Plyn"] = select_with_custom("Plyn", [
+            "ano", "ne"
+        ])
 
 # 🔹 CHAT HISTORIE
 if "messages" not in st.session_state:
