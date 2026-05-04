@@ -165,6 +165,8 @@ Pokud uživatel chce technickou zprávu:
 - žádné emoji
 - žádné odrážky typu chat
 - styl jako projektová dokumentace, jejiž vzory jsou v documents složce
+- v sidebaru nejsou všechny informace, použíj internet a doptej se na věci které potřebuješ k vypsání následujícího bodu
+- nemusíš používat veškeré informace ze sidebaru ke každému dotazu pokud nejsou relevantní (podle podkladů v documents)
 
 ---
 
