@@ -24,6 +24,11 @@ st.title("AI Asistent projektanta")
 with st.sidebar:
     st.header("Parametry projektu")
 
+    # 🔥 RESET BUTTON
+    if st.button("🔄 Resetovat formulář"):
+        st.session_state.clear()
+        st.rerun()
+
     data = {}
 
     # IDENTITA
@@ -32,12 +37,14 @@ with st.sidebar:
         ["Rodinný dům", "Rodinný dvojdům", "Řadový dům", "Rekreační objekt"]
     )
 
-    data["Lokalita"] = st.text_input("Lokalita")
+    data["Lokalita"] = st.text_input("Lokalita", placeholder="např. Brno")
 
     # ÚZEMÍ
-    data["Typ území"] = select_with_custom(
+    data["Typ území"] = st.selectbox(
         "Typ území",
-        ["v zastavěné části", "v nezastavěné části", "v chatové oblasti"]
+        ["v zastavěné části", "v nezastavěné části", "v chatové oblasti"],
+        index=None,
+        placeholder="Vyber..."
     )
 
     data["Napojení na dopravu"] = select_with_custom(
@@ -51,11 +58,31 @@ with st.sidebar:
         ["obdélník", "čtverec", "tvar L", "tvar U", "členitý"]
     )
 
-    data["Počet bytů"] = select_with_custom("Počet bytů", ["1", "2", "3"])
-    data["Počet NP"] = select_with_custom("Počet NP", ["1", "2", "3"])
+    data["Počet bytů"] = st.selectbox(
+        "Počet bytů",
+        ["1", "2", "3"],
+        index=None,
+        placeholder="Vyber..."
+    )
 
-    data["Podkroví"] = st.radio("Podkroví", ["ano", "ne"])
-    data["Podsklepení"] = st.radio("Podsklepení", ["ne", "ano", "částečně"])
+    data["Počet NP"] = st.selectbox(
+        "Počet NP",
+        ["1", "2", "3"],
+        index=None,
+        placeholder="Vyber..."
+    )
+
+    data["Podkroví"] = st.radio(
+        "Podkroví",
+        ["ano", "ne"],
+        index=None
+    )
+
+    data["Podsklepení"] = st.radio(
+        "Podsklepení",
+        ["ne", "ano", "částečně"],
+        index=None
+    )
 
     # TERÉN
     data["Terén"] = select_with_custom(
