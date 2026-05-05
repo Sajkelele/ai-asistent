@@ -32,44 +32,48 @@ vectorstore = get_vectorstore()
 st.title("AI Asistent projektanta")
 
 # 🔹 SIDEBAR
+data = {}
+
 with st.sidebar:
     st.header("Parametry projektu")
 
-if st.button("🎲 Náhodně vyplnit"):
+    if st.button("🔄 Reset"):
+        st.session_state.clear()
+        st.rerun()
 
-    st.session_state["Druh stavby"] = random.choice([
-        "Rodinný dům", "Dvojdům", "Řadový dům"
-    ])
+    if st.button("🎲 Náhodně vyplnit"):
 
-    st.session_state["Lokalita"] = random.choice([
-        "Brno", "Praha", "Ostrava", "Plzeň"
-    ])
+        st.session_state["Druh stavby"] = random.choice([
+            "Rodinný dům", "Dvojdům", "Řadový dům"
+        ])
 
-    st.session_state["Typ území"] = random.choice([
-        "v zastavěné části", "v nezastavěné části"
-    ])
+        st.session_state["Lokalita"] = random.choice([
+            "Brno", "Praha", "Ostrava", "Plzeň"
+        ])
 
-    st.session_state["Počet NP"] = random.choice(["1", "2"])
+        st.session_state["Typ území"] = random.choice([
+            "v zastavěné části", "v nezastavěné části"
+        ])
 
-    st.session_state["Půdorys"] = random.choice([
-        "obdélník", "L"
-    ])
+        st.session_state["Počet NP"] = random.choice(["1", "2"])
 
-    st.session_state["Konstrukce"] = random.choice([
-        "zděná", "dřevostavba"
-    ])
+        st.session_state["Půdorys"] = random.choice([
+            "obdélník", "L"
+        ])
 
-    st.session_state["Vytápění"] = random.choice([
-        "TČ vzduch-voda", "plyn"
-    ])
+        st.session_state["Konstrukce"] = random.choice([
+            "zděná", "dřevostavba"
+        ])
 
-    st.session_state["Voda"] = "vodovod"
-    st.session_state["Kanalizace"] = "kanalizace"
-    st.session_state["Elektřina"] = "nová přípojka"
+        st.session_state["Vytápění"] = random.choice([
+            "TČ vzduch-voda", "plyn"
+        ])
 
-    st.rerun()
+        st.session_state["Voda"] = "vodovod"
+        st.session_state["Kanalizace"] = "kanalizace"
+        st.session_state["Elektřina"] = "nová přípojka"
 
-    data = {}
+        st.rerun()
 
     with st.expander("I. Identita a pozemek", expanded=True):
         data["Druh stavby"] = select_with_custom("Druh stavby", [
