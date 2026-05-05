@@ -4,6 +4,7 @@ from openai import OpenAI
 from vector_store import create_vector_store
 from docx import Document
 from docx.shared import Pt
+import random
 
 # 🔥 SELECT S "SPECIFICKÉ"
 def select_with_custom(label, options):
@@ -34,9 +35,39 @@ st.title("AI Asistent projektanta")
 with st.sidebar:
     st.header("Parametry projektu")
 
-    if st.button("🔄 Reset"):
-        st.session_state.clear()
-        st.rerun()
+    if st.button("🎲 Náhodně vyplnit"):
+
+    st.session_state["Druh stavby"] = random.choice([
+        "Rodinný dům", "Dvojdům", "Řadový dům"
+    ])
+
+    st.session_state["Lokalita"] = random.choice([
+        "Brno", "Praha", "Ostrava", "Plzeň"
+    ])
+
+    st.session_state["Typ území"] = random.choice([
+        "v zastavěné části", "v nezastavěné části"
+    ])
+
+    st.session_state["Počet NP"] = random.choice(["1", "2"])
+
+    st.session_state["Půdorys"] = random.choice([
+        "obdélník", "L"
+    ])
+
+    st.session_state["Konstrukce"] = random.choice([
+        "zděná", "dřevostavba"
+    ])
+
+    st.session_state["Vytápění"] = random.choice([
+        "TČ vzduch-voda", "plyn"
+    ])
+
+    st.session_state["Voda"] = "vodovod"
+    st.session_state["Kanalizace"] = "kanalizace"
+    st.session_state["Elektřina"] = "nová přípojka"
+
+    st.rerun()
 
     data = {}
 
