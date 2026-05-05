@@ -108,12 +108,10 @@ user_input = st.chat_input("Napiš dotaz nebo 'vygeneruj zprávu'...")
 # 🔥 HLAVNÍ LOGIKA
 if user_input:
 
-    # 🔥 DETEKCE GENEROVÁNÍ DOKUMENTU
     wants_doc = any(word in user_input.lower() for word in [
         "zprávu", "zprava", "dokument", "vytvoř", "vygeneruj"
     ])
 
-    # 🔥 VALIDACE JEN PRO DOKUMENT
     if wants_doc:
         errors = []
 
@@ -133,9 +131,7 @@ if user_input:
 
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # 🔥 RAG (PDF)
-# 🔥 jen pro dokument
-# 🔥 RAG jen pro dokument
+    # 🔥 RAG jen pro dokument
     if wants_doc:
         docs = vectorstore.similarity_search("technická zpráva stavba projekt", k=5)
         context = "\n\n".join([d.page_content for d in docs])
@@ -145,20 +141,40 @@ if user_input:
     params_text = "\n".join([f"- {k}: {v}" for k, v in data.items() if v])
 
     # 🔥 PROMPT
+    prompt = f"""
+Uživatel:
+{user_input}
 
+Kontext:
+{context}
+
+Parametry:
+{params_text}
+
+---
+
+Pokud chce technickou zprávu:
+- zkontroluj, jestli máš dost dat
+- pokud něco chybí → zeptej se (max 3–4 otázky)
+- pokud máš vše → vytvoř profesionální zprávu
+
+Jinak:
+- odpověz normálně
+- buď konkrétní
+- nepoužívej zbytečné fráze
+"""
 
     with st.chat_message("assistant"):
         with st.spinner("Přemýšlím..."):
             response = client.chat.completions.create(
                 model="gpt-4o",
-                messages=[{"role": "user"t}]
+                messages=[{"role": "user", "content": prompt}]
             )
 
             reply = response.choices[0].message.content
-
             st.write(reply)
 
-            # 🔥 WORD EXPORT JEN KDYŽ JE DOKUMENT
+            # 🔥 WORD EXPORT
             if wants_doc:
                 doc = Document()
                 doc.add_heading("TECHNICKÁ ZPRÁVA", 0)
