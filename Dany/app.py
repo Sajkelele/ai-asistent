@@ -35,7 +35,7 @@ st.title("AI Asistent projektanta")
 with st.sidebar:
     st.header("Parametry projektu")
 
-    if st.button("🎲 Náhodně vyplnit"):
+if st.button("🎲 Náhodně vyplnit"):
 
     st.session_state["Druh stavby"] = random.choice([
         "Rodinný dům", "Dvojdům", "Řadový dům"
